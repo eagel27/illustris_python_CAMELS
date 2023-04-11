@@ -5,7 +5,7 @@ from __future__ import print_function
 import numpy as np
 import h5py
 import six
-from os.path import isfile
+from os.path import isfile, join
 
 from .util import partTypeNum
 from .groupcat import gcPath, offsetPath
@@ -13,13 +13,13 @@ from .groupcat import gcPath, offsetPath
 
 def snapPath(basePath, snapNum, chunkNum=0):
     """ Return absolute path to a snapshot HDF5 file (modify as needed). """
-    snapPath = basePath + '/snapdir_' + str(snapNum).zfill(3) + '/'
-    filePath1 = snapPath + 'snap_' + str(snapNum).zfill(3) + '.' + str(chunkNum) + '.hdf5'
+    filePath1 = join(basePath, 'snap_' + str(snapNum).zfill(3) + '.hdf5')
     filePath2 = filePath1.replace('/snap_', '/snapshot_')
 
     if isfile(filePath1):
         return filePath1
     return filePath2
+
 
 def getNumPart(header):
     """ Calculate number of particles of all types given a snapshot header. """
@@ -61,10 +61,12 @@ def loadSubset(basePath, snapNum, partType, fields=None, subset=None, mdi=None, 
 
         # decide global read size, starting file chunk, and starting file chunk offset
         if subset:
-            offsetsThisType = subset['offsetType'][ptNum] - subset['snapOffsets'][ptNum, :]
+            #offsetsThisType = subset['offsetType'][ptNum] - subset['snapOffsets'][ptNum, :]
 
-            fileNum = np.max(np.where(offsetsThisType >= 0))
-            fileOff = offsetsThisType[fileNum]
+            #fileNum = np.max(np.where(offsetsThisType >= 0))
+            #fileOff = offsetsThisType[fileNum]
+            fileNum = 0
+            fileOff = subset['offsetType'][ptNum]
             numToRead = subset['lenType'][ptNum]
         else:
             fileNum = 0
@@ -126,8 +128,8 @@ def loadSubset(basePath, snapNum, partType, fields=None, subset=None, mdi=None, 
 
         numToReadLocal = numToRead
 
-        if fileOff + numToReadLocal > numTypeLocal:
-            numToReadLocal = numTypeLocal - fileOff
+        #if fileOff + numToReadLocal > numTypeLocal:
+        #    numToReadLocal = numTypeLocal - fileOff
 
         #print('['+str(fileNum).rjust(3)+'] off='+str(fileOff)+' read ['+str(numToReadLocal)+\
         #      '] of ['+str(numTypeLocal)+'] remaining = '+str(numToRead-numToReadLocal))
@@ -163,32 +165,33 @@ def getSnapOffsets(basePath, snapNum, id, type):
     r = {}
 
     # old or new format
-    if 'fof_subhalo' in gcPath(basePath, snapNum):
-        # use separate 'offsets_nnn.hdf5' files
-        with h5py.File(offsetPath(basePath, snapNum), 'r') as f:
-            groupFileOffsets = f['FileOffsets/'+type][()]
-            r['snapOffsets'] = np.transpose(f['FileOffsets/SnapByType'][()])  # consistency
-    else:
-        # load groupcat chunk offsets from header of first file
-        with h5py.File(gcPath(basePath, snapNum), 'r') as f:
-            groupFileOffsets = f['Header'].attrs['FileOffsets_'+type]
-            r['snapOffsets'] = f['Header'].attrs['FileOffsets_Snap']
+    #if 'fof_subhalo' in gcPath(basePath, snapNum):
+    #    # use separate 'offsets_nnn.hdf5' files
+    #    with h5py.File(offsetPath(basePath, snapNum), 'r') as f:
+    #        groupFileOffsets = f['FileOffsets/'+type][()]
+    #        r['snapOffsets'] = np.transpose(f['FileOffsets/SnapByType'][()])  # consistency
+    #else:
+    #    # load groupcat chunk offsets from header of first file
+    #    with h5py.File(gcPath(basePath, snapNum), 'r') as f:
+    #        groupFileOffsets = f['Header'].attrs['FileOffsets_'+type]
+    #        r['snapOffsets'] = f['Header'].attrs['FileOffsets_Snap']
 
     # calculate target groups file chunk which contains this id
-    groupFileOffsets = int(id) - groupFileOffsets
-    fileNum = np.max(np.where(groupFileOffsets >= 0))
-    groupOffset = groupFileOffsets[fileNum]
+    #groupFileOffsets = int(id) - groupFileOffsets
+    #fileNum = np.max(np.where(groupFileOffsets >= 0))
+    #groupOffset = groupFileOffsets[fileNum]
+    groupOffset = id
 
     # load the length (by type) of this group/subgroup from the group catalog
-    with h5py.File(gcPath(basePath, snapNum, fileNum), 'r') as f:
+    with h5py.File(gcPath(basePath, snapNum), 'r') as f:
         r['lenType'] = f[type][type+'LenType'][groupOffset, :]
 
     # old or new format: load the offset (by type) of this group/subgroup within the snapshot
     if 'fof_subhalo' in gcPath(basePath, snapNum):
-        with h5py.File(offsetPath(basePath, snapNum), 'r') as f:
+        with h5py.File(offsetPath(basePath, snapNum, overwrite_path='/home/jovyan/home/'), 'r') as f:
             r['offsetType'] = f[type+'/SnapByType'][id, :]
     else:
-        with h5py.File(gcPath(basePath, snapNum, fileNum), 'r') as f:
+        with h5py.File(gcPath(basePath, snapNum), 'r') as f:
             r['offsetType'] = f['Offsets'][type+'_SnapByType'][groupOffset, :]
 
     return r

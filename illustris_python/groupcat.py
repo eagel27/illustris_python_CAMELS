@@ -3,26 +3,28 @@ groupcat.py: File I/O related to the FoF and Subfind group catalogs. """
 from __future__ import print_function
 
 import six
-from os.path import isfile,expanduser
+from os.path import isfile, expanduser, join
 import numpy as np
 import h5py
 
 
 def gcPath(basePath, snapNum, chunkNum=0):
     """ Return absolute path to a group catalog HDF5 file (modify as needed). """
-    gcPath = basePath + '/groups_%03d/' % snapNum
-    filePath1 = gcPath + 'groups_%03d.%d.hdf5' % (snapNum, chunkNum)
-    filePath2 = gcPath + 'fof_subhalo_tab_%03d.%d.hdf5' % (snapNum, chunkNum)
-
-    if isfile(expanduser(filePath1)):
-        return filePath1
-    return filePath2
+    gcPath = basePath 
+    filePath = join(gcPath, 'fof_subhalo_tab_%03d.hdf5' % (snapNum, ))
+    return filePath
 
 
-def offsetPath(basePath, snapNum):
+def offsetPath(basePath, snapNum, offset_type='SubLink_gal', overwrite_path=None):
     """ Return absolute path to a separate offset file (modify as needed). """
-    offsetPath = basePath + '/../postprocessing/offsets/offsets_%03d.hdf5' % snapNum
-
+    parentPath, simFolder = basePath.split('Sims/')
+    offsetPath = join(parentPath, offset_type, simFolder,
+            'offsets/offsets_%03d.hdf5' % snapNum)
+    if overwrite_path:
+        offsetPath1 = join(overwrite_path, 'Offsets', simFolder,
+                          'offsets/offsets_%03d.hdf5' % snapNum)
+        if isfile(expanduser(offsetPath1)):
+            return offsetPath1
     return offsetPath
 
 
@@ -140,7 +142,7 @@ def loadSingle(basePath, snapNum, haloID=-1, subhaloID=-1):
     if 'fof_subhalo' in gcPath(basePath, snapNum):
         # use separate 'offsets_nnn.hdf5' files
         with h5py.File(offsetPath(basePath, snapNum), 'r') as f:
-            offsets = f['FileOffsets/'+gName][()]
+            offsets = f['FileOffsets'][()]
     else:
         # use header of group catalog
         with h5py.File(gcPath(basePath, snapNum), 'r') as f:

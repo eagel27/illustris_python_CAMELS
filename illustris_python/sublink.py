@@ -13,20 +13,20 @@ from .util import partTypeNum
 
 def treePath(basePath, treeName, chunkNum=0):
     """ Return absolute path to a SubLink HDF5 file (modify as needed). """
-    # tree_path = '/trees/' + treeName + '/' + 'tree_extended.' + str(chunkNum) + '.hdf5'
-    tree_path = os.path.join('trees', treeName, 'tree_extended.' + str(chunkNum) + '.hdf5')
+    tree_filename = 'tree_extended.hdf5'
+    parentPath, simFolder = basePath.split('Sims/')
 
-    _path = os.path.join(basePath, tree_path)
+    _path = os.path.join(basePath, tree_filename)
     if len(glob.glob(_path)):
         return _path
 
     # new path scheme
-    _path = os.path.join(basePath, os.path.pardir, 'postprocessing', tree_path)
+    _path = os.path.join(parentPath, treeName, simFolder, tree_filename)
     if len(glob.glob(_path)):
         return _path
 
     # try one or more alternative path schemes before failing
-    _path = os.path.join(basePath, 'postprocessing', tree_path)
+    _path = os.path.join(parentPath, 'Results/SubLink', simFolder, tree_filename)
     if len(glob.glob(_path)):
         return _path
 
@@ -39,7 +39,7 @@ def treeOffsets(basePath, snapNum, id, treeName):
     if 'fof_subhalo' in gcPath(basePath, snapNum) or treeName == "SubLink_gal":
         # load groupcat chunk offsets from separate 'offsets_nnn.hdf5' files
         with h5py.File(offsetPath(basePath, snapNum), 'r') as f:
-            groupFileOffsets = f['FileOffsets/Subhalo'][()]
+            groupFileOffsets = f['FileOffsets'][()]
 
         offsetFile = offsetPath(basePath, snapNum)
         prefix = 'Subhalo/' + treeName + '/'
@@ -60,12 +60,14 @@ def treeOffsets(basePath, snapNum, id, treeName):
 
     with h5py.File(offsetFile, 'r') as f:
         # load the merger tree offsets of this subgroup
-        RowNum     = f[prefix+'RowNum'][groupOffset]
-        LastProgID = f[prefix+'LastProgenitorID'][groupOffset]
-        SubhaloID  = f[prefix+'SubhaloID'][groupOffset]
+        RowNum     = f['RowNum'][groupOffset]
+        LastProgID = f['LastProgenitorID'][groupOffset]
+        SubhaloID  = f['SubhaloID'][groupOffset]
         return RowNum, LastProgID, SubhaloID
 
+
 offsetCache = dict()
+
 
 def subLinkOffsets(basePath, treeName, cache=True):
     # create quick offset table for rows in the SubLink files
@@ -93,6 +95,7 @@ def subLinkOffsets(basePath, treeName, cache=True):
         cache[path] = offsets
 
     return offsets
+
 
 def loadTree(basePath, snapNum, id, fields=None, onlyMPB=False, onlyMDB=False, treeName="SubLink", cache=True):
     """ Load portion of Sublink tree, for a given subhalo, in its existing flat format.
