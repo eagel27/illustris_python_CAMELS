@@ -22,7 +22,7 @@ def offsetPath(basePath, snapNum, offset_type='SubLink_gal', overwrite_path=None
             'offsets/offsets_%03d.hdf5' % snapNum)
     if overwrite_path:
         offsetPath1 = join(overwrite_path, 'Offsets', simFolder,
-                          'offsets/offsets_%03d.hdf5' % snapNum)
+                          'offsets_%03d.hdf5' % snapNum)
         if isfile(expanduser(offsetPath1)):
             return offsetPath1
     return offsetPath
@@ -139,23 +139,23 @@ def loadSingle(basePath, snapNum, haloID=-1, subhaloID=-1):
     searchID = subhaloID if subhaloID >= 0 else haloID
 
     # old or new format
-    if 'fof_subhalo' in gcPath(basePath, snapNum):
-        # use separate 'offsets_nnn.hdf5' files
-        with h5py.File(offsetPath(basePath, snapNum), 'r') as f:
-            offsets = f['FileOffsets'][()]
-    else:
-        # use header of group catalog
-        with h5py.File(gcPath(basePath, snapNum), 'r') as f:
-            offsets = f['Header'].attrs['FileOffsets_'+gName]
+    #if 'fof_subhalo' in gcPath(basePath, snapNum):
+    #    # use separate 'offsets_nnn.hdf5' files
+    #    with h5py.File(offsetPath(basePath, snapNum), 'r') as f:
+    #        offsets = f['FileOffsets'][()]
+    #else:
+    #    # use header of group catalog
+    #    with h5py.File(gcPath(basePath, snapNum), 'r') as f:
+    #        offsets = f['Header'].attrs['FileOffsets_'+gName]
 
-    offsets = searchID - offsets
-    fileNum = np.max(np.where(offsets >= 0))
-    groupOffset = offsets[fileNum]
+    #offsets = searchID - offsets
+    #fileNum = np.max(np.where(offsets >= 0))
+    groupOffset = searchID
 
     # load halo/subhalo fields into a dict
     result = {}
 
-    with h5py.File(gcPath(basePath, snapNum, fileNum), 'r') as f:
+    with h5py.File(gcPath(basePath, snapNum), 'r') as f:
         for haloProp in f[gName].keys():
             result[haloProp] = f[gName][haloProp][groupOffset]
 
