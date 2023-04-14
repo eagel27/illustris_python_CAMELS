@@ -97,7 +97,7 @@ def subLinkOffsets(basePath, treeName, cache=True):
     return offsets
 
 
-def loadTree(basePath, snapNum, id, fields=None, onlyMPB=False, onlyMDB=False, treeName="SubLink", cache=True):
+def loadTree(basePath, snapNum, id, fields=None, onlyMPB=False, onlyMDB=False, treeName="SubLink_gal", cache=True):
     """ Load portion of Sublink tree, for a given subhalo, in its existing flat format.
         (optionally restricted to a subset fields)."""
     # the tree is all subhalos between SubhaloID and LastProgenitorID
