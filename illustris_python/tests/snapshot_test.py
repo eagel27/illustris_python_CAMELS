@@ -20,7 +20,7 @@ import numpy as np
 from nose.tools import assert_equal, assert_raises, assert_true
 
 # `illustris_python` is imported as `ill` in local `__init__.py`
-from . import ill, BASE_PATH_ILLUSTRIS_1
+from . import ill, BASE_PATH_CAMELS_TNG
 
 
 def test_snapshot_partTypeNum_1():
@@ -63,16 +63,16 @@ def test_loadSubset():
 
 
 def test_loadHalo():
-    snap = 135
+    snap = 33
     halo_num = 100
 
-    # Values for Illustris-1, snap=135, halo 100
-    coords = [[19484.6576131, 20662.6423522],
-              [54581.7254122, 55598.2078751],
-              [60272.0348192, 61453.9991835]]
+    # Values for CAMELS_TNG_1P_1_0, snap=33, halo 100
+    coords = [[18927.308004202096, 19071.693153209173],
+              [21020.63007427272, 21429.035218396126],
+              [23386.91529889961, 23656.211157049107]]
     stars_count = 981545
 
-    stars = ill.snapshot.loadHalo(BASE_PATH_ILLUSTRIS_1, snap, halo_num, 'stars')
+    stars = ill.snapshot.loadHalo(BASE_PATH_CAMELS_TNG, snap, halo_num, 'stars')
     assert_equal(stars["count"], stars_count)
     for i in range(3):
         _min = np.min(stars['Coordinates'][:, i])

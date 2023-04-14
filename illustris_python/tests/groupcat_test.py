@@ -45,7 +45,7 @@ def test_groupcat_loadHalos_field():
 def test_groupcat_loadHalos_all_fields():
     snap = 33
     num_fields = 23
-    # Illustris-1, snap 135
+    # Values for CAMELS_TNG_1P_1_0, snap 33
     cat_shape = (20817,)
     first_key = 'GroupBHMass'
     all_fields = ill.groupcat.loadHalos(BASE_PATH_CAMELS_TNG, snap)
