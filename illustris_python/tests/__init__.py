@@ -4,7 +4,8 @@
 import os
 import sys
 
-BASE_PATH_ILLUSTRIS_1 = "/n/ghernquist/Illustris/Runs/L75n1820FP"
+SIM_DIR = '1P_1_0'
+BASE_PATH_CAMELS_TNG = '/home/jovyan/PUBLIC_RELEASE/Sims/IllustrisTNG/{}/'.format(SIM_DIR)
 
 # Add path to directory containing 'illustris_python' module
 #    e.g. if this file is in '/n/home00/lkelley/illustris/illustris_python/tests/'
