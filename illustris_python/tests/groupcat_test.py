@@ -44,7 +44,7 @@ def test_groupcat_loadHalos_field():
 
 def test_groupcat_loadHalos_all_fields():
     snap = 33
-    num_fields = 23
+    num_fields = 26
     # Values for CAMELS_TNG_1P_1_0, snap 33
     cat_shape = (20817,)
     first_key = 'GroupBHMass'

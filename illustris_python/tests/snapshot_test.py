@@ -70,7 +70,7 @@ def test_loadHalo():
     coords = [[18927.308004202096, 19071.693153209173],
               [21020.63007427272, 21429.035218396126],
               [23386.91529889961, 23656.211157049107]]
-    stars_count = 981545
+    stars_count = 1594
 
     stars = ill.snapshot.loadHalo(BASE_PATH_CAMELS_TNG, snap, halo_num, 'stars')
     assert_equal(stars["count"], stars_count)

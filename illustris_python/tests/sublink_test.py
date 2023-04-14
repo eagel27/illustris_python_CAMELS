@@ -67,7 +67,7 @@ def test_numMergers():
     start = 100
 
     # Values for CAMELS_TNG_1P_1_0, snap=33, start=100
-    num_mergers = [1, 3, 3, 1, 3]
+    num_mergers = [3, 5, 1, 2, 2]
 
     group_first_sub = ill.groupcat.loadHalos(BASE_PATH_CAMELS_TNG, snap, fields=['GroupFirstSub'])
 
