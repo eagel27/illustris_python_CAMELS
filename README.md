@@ -29,4 +29,21 @@ This can be done with the python scripy create_snapshot_offsets.py (follow instr
 python create_snapshot_offsets.py
 ```
 
+# Usage
 
+The usage is similar to the illustris_python package. 
+
+!! Important !! \
+To load subhalos and halos from the snapshot files, the snapshot offsets 
+should be calculated (see prerequisites) and the path should be provided in the arguments:
+
+
+
+```
+import illustris_python_CAMELS.illustris_python as il
+
+il.snapshot.loadSubhalo('/home/jovyan/Data/Sims/IllustrisTNG/1P/1P_1_0',
+                         33, 0, 'stars', 
+                         fields=['ParticleIDs', 'GFM_StellarFormationTime', 'Masses'], 
+                         overwrite_path='/home/jovyan/home/snapshot_offsets/')
+```

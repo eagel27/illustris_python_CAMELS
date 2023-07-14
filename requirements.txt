@@ -2,6 +2,7 @@
 numpy
 h5py
 six
+tqdm
 
 # Packages required for unit tests
 nose
