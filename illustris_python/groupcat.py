@@ -21,8 +21,8 @@ def offsetPath(basePath, snapNum, offset_type='SubLink_gal', overwrite_path=None
     offsetPath = join(parentPath, offset_type, simFolder,
             'offsets/offsets_%03d.hdf5' % snapNum)
     if overwrite_path:
-        offsetPath1 = join(overwrite_path, 'Offsets', simFolder,
-                          'offsets_%03d.hdf5' % snapNum)
+        offsetPath1 = join(overwrite_path, simFolder,
+                           'offsets_%03d.hdf5' % snapNum)
         if isfile(expanduser(offsetPath1)):
             return offsetPath1
     return offsetPath

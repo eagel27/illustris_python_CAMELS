@@ -72,18 +72,8 @@ def calc_offsets_sim(base_path, offsets_path, total_snapshots):
 
 
 if __name__ == '__main__':
-
-    suite_name_options = ('IllustrisTNG', 'Astrid', 'SIMBA')
-    suite_name = input("Enter simulation suite for which you wish to do the offset calculation \n"
-                       "(options: {}): ".format('/'.join(suite_name_options)))
-
-    if suite_name not in suite_name_options:
-        print('Suite outside of options!')
-        sys.exit(1)
-
-    sim_name = input("Enter simulation name: ")
-    base_path = '/home/jovyan/PUBLIC_RELEASE/Sims/{}/{}/'.format(suite_name, sim_name)
-
+    base_path = input("Enter path to simulation folder: \n"
+                      "(example: /home/jovyan/Data/Sims/IllustrisTNG/1P/1P_1_0): ")
     try:
         total_snapshots = len([name for name in os.listdir(base_path)
                                if os.path.isfile(os.path.join(base_path, name)) and name.startswith('snap_')])
@@ -91,13 +81,18 @@ if __name__ == '__main__':
         print('Path {} does not seem to exist!'.format(base_path))
         sys.exit(1)
 
-    offsets_path = os.path.join('/home/jovyan/home/Offsets/{}/{}'.format(suite_name, sim_name))
+    parentPath, simFolder = base_path.split('Sims/')
+    overwrite_path = '/home/jovyan/home/snapshot_offsets'
+    offsets_path = os.path.join(overwrite_path, simFolder)
+
     save_path = input("Enter save path or leave blank for default ({}): ".format(offsets_path))
     if save_path:
         offsets_path = save_path
 
     if not os.path.exists(offsets_path):
-        print('Calculating offsets for sim {}'.format(sim_name))
+        print('Calculating offsets for sim {}'.format(simFolder))
         calc_offsets_sim(base_path, offsets_path, total_snapshots)
+        print('Offsets saved at {}. \n'
+              'Remember to use the "overwrite_path" kwarg when loading halos and subhalos!'.format(offsets_path))
     else:
-        print('Offsets for sim {} already calculated!'.format(sim_name))
+        print('Offsets for sim {} already calculated!'.format(simFolder))

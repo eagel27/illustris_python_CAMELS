@@ -2,6 +2,7 @@
 snapshot.py: File I/O related to the snapshot files. """
 from __future__ import print_function
 
+import pandas as pd
 import numpy as np
 import h5py
 import six
@@ -160,26 +161,9 @@ def loadSubset(basePath, snapNum, partType, fields=None, subset=None, mdi=None, 
     return result
 
 
-def getSnapOffsets(basePath, snapNum, id, type):
+def getSnapOffsets(basePath, snapNum, id, type, overwrite_path=None):
     """ Compute offsets within snapshot for a particular group/subgroup. """
     r = {}
-
-    # old or new format
-    #if 'fof_subhalo' in gcPath(basePath, snapNum):
-    #    # use separate 'offsets_nnn.hdf5' files
-    #    with h5py.File(offsetPath(basePath, snapNum), 'r') as f:
-    #        groupFileOffsets = f['FileOffsets/'+type][()]
-    #        r['snapOffsets'] = np.transpose(f['FileOffsets/SnapByType'][()])  # consistency
-    #else:
-    #    # load groupcat chunk offsets from header of first file
-    #    with h5py.File(gcPath(basePath, snapNum), 'r') as f:
-    #        groupFileOffsets = f['Header'].attrs['FileOffsets_'+type]
-    #        r['snapOffsets'] = f['Header'].attrs['FileOffsets_Snap']
-
-    # calculate target groups file chunk which contains this id
-    #groupFileOffsets = int(id) - groupFileOffsets
-    #fileNum = np.max(np.where(groupFileOffsets >= 0))
-    #groupOffset = groupFileOffsets[fileNum]
     groupOffset = id
 
     # load the length (by type) of this group/subgroup from the group catalog
@@ -188,7 +172,7 @@ def getSnapOffsets(basePath, snapNum, id, type):
 
     # old or new format: load the offset (by type) of this group/subgroup within the snapshot
     if 'fof_subhalo' in gcPath(basePath, snapNum):
-        with h5py.File(offsetPath(basePath, snapNum, overwrite_path='/home/jovyan/home/'), 'r') as f:
+        with h5py.File(offsetPath(basePath, snapNum, overwrite_path=overwrite_path), 'r') as f:
             r['offsetType'] = f[type+'/SnapByType'][id, :]
     else:
         with h5py.File(gcPath(basePath, snapNum), 'r') as f:
@@ -197,17 +181,17 @@ def getSnapOffsets(basePath, snapNum, id, type):
     return r
 
 
-def loadSubhalo(basePath, snapNum, id, partType, fields=None):
+def loadSubhalo(basePath, snapNum, id, partType, fields=None, overwrite_path=None):
     """ Load all particles/cells of one type for a specific subhalo
         (optionally restricted to a subset fields). """
     # load subhalo length, compute offset, call loadSubset
-    subset = getSnapOffsets(basePath, snapNum, id, "Subhalo")
+    subset = getSnapOffsets(basePath, snapNum, id, "Subhalo", overwrite_path=overwrite_path)
     return loadSubset(basePath, snapNum, partType, fields, subset=subset)
 
 
-def loadHalo(basePath, snapNum, id, partType, fields=None):
+def loadHalo(basePath, snapNum, id, partType, fields=None, overwrite_path=None):
     """ Load all particles/cells of one type for a specific halo
         (optionally restricted to a subset fields). """
     # load halo length, compute offset, call loadSubset
-    subset = getSnapOffsets(basePath, snapNum, id, "Group")
+    subset = getSnapOffsets(basePath, snapNum, id, "Group", overwrite_path=overwrite_path)
     return loadSubset(basePath, snapNum, partType, fields, subset=subset)
