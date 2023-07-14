@@ -20,3 +20,13 @@ git clone git@github.com:eagel27/illustris_python_CAMELS.git
 cd illustris_python
 pip install .
 ```
+# Prerequisites
+
+The snapshot offsets need to be calculated prior to using this package. 
+This can be done with the python scripy create_snapshot_offsets.py (follow instructions on prompt):
+
+```
+python create_snapshot_offsets.py
+```
+
+
