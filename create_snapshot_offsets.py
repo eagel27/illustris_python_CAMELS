@@ -1,6 +1,6 @@
 import os
 import sys
-
+import re
 import numpy as np
 import h5py
 import tqdm
@@ -51,12 +51,12 @@ def create_offsets(base_path, offsets_path, snapshot):
         s_grp.create_dataset('SnapByType', data=subhalo_offsets_upd)
 
 
-def calc_offsets_sim(base_path, offsets_path, total_snapshots):
+def calc_offsets_sim(base_path, offsets_path, snapshots):
     """
     Calculate offsets for a specific simulation in parallel
     :param base_path: The base path of the simulation
     :param offsets_path: The path where the calculated offsets will be saved
-    :param total_snapshots: The number of total snapshots of this simulation
+    :param snapshots: The snapshots that have a snapshot file of this simulation
     :return:
     """
     if not os.path.exists(offsets_path):
@@ -65,8 +65,8 @@ def calc_offsets_sim(base_path, offsets_path, total_snapshots):
     pool = Pool(processes=4)
     tqdm.tqdm(pool.starmap(create_offsets, zip(repeat(base_path),
                                                repeat(offsets_path),
-                                               range(total_snapshots))),
-              total=total_snapshots)
+                                               snapshots)),
+              total=len(snapshots))
     pool.close()
     pool.join()
 
@@ -75,8 +75,8 @@ if __name__ == '__main__':
     base_path = input("Enter path to simulation folder: \n"
                       "(example: /home/jovyan/Data/Sims/IllustrisTNG/1P/1P_1_0): ")
     try:
-        total_snapshots = len([name for name in os.listdir(base_path)
-                               if os.path.isfile(os.path.join(base_path, name)) and name.startswith('snap_')])
+        snapshots = [int(re.search(r'snap_(\w+).hdf5', name).group(1)) for name in os.listdir(base_path)
+                     if os.path.isfile(os.path.join(base_path, name)) and name.startswith('snap_')]
     except OSError:
         print('Path {} does not seem to exist!'.format(base_path))
         sys.exit(1)
@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
     if not os.path.exists(offsets_path):
         print('Calculating offsets for sim {}'.format(simFolder))
-        calc_offsets_sim(base_path, offsets_path, total_snapshots)
+        calc_offsets_sim(base_path, offsets_path, snapshots)
         print('Offsets saved at {}. \n'
               'Remember to use the "overwrite_path" kwarg when loading halos and subhalos!'.format(offsets_path))
     else:
