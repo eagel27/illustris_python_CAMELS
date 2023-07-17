@@ -114,6 +114,20 @@ def loadSubset(basePath, snapNum, partType, fields=None, subset=None, mdi=None, 
     wOffset = 0
     origNumToRead = numToRead
 
+    ordered_idxs = None
+    with h5py.File(gcPath(basePath, snapNum), 'r') as f:
+        if 'IDs' in f.keys():
+            ordered_particle_ids = list(f['IDs']['ID'][...])
+
+            f1 = h5py.File(snapPath(basePath, snapNum), 'r')
+            type_ids = list(f1[gName]['ParticleIDs'][...])
+            f1.close()
+
+            sorter = np.argsort(type_ids)
+            a = np.searchsorted(type_ids, ordered_particle_ids, sorter=sorter)
+            ordered_idxs = sorter[a]
+            ordered_idxs = pd.unique(ordered_idxs)
+
     while numToRead:
         f = h5py.File(snapPath(basePath, snapNum, fileNum), 'r')
 
@@ -137,11 +151,15 @@ def loadSubset(basePath, snapNum, partType, fields=None, subset=None, mdi=None, 
 
         # loop over each requested field for this particle type
         for i, field in enumerate(fields):
+            fields_values = f[gName][field][...]
+            if ordered_idxs is not None:
+                fields_values = fields_values[ordered_idxs]
+
             # read data local to the current file
             if mdi is None or mdi[i] is None:
-                result[field][wOffset:wOffset+numToReadLocal] = f[gName][field][fileOff:fileOff+numToReadLocal]
+                result[field][wOffset:wOffset+numToReadLocal] = fields_values[fileOff:fileOff+numToReadLocal]
             else:
-                result[field][wOffset:wOffset+numToReadLocal] = f[gName][field][fileOff:fileOff+numToReadLocal, mdi[i]]
+                result[field][wOffset:wOffset+numToReadLocal] = fields_values[fileOff:fileOff+numToReadLocal, mdi[i]]
 
         wOffset   += numToReadLocal
         numToRead -= numToReadLocal
