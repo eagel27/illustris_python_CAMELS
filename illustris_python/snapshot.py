@@ -116,7 +116,7 @@ def loadSubset(basePath, snapNum, partType, fields=None, subset=None, mdi=None, 
 
     ordered_idxs = None
     with h5py.File(gcPath(basePath, snapNum), 'r') as f:
-        if 'IDs' in f.keys():
+        if 'IllustrisTNG' not in basePath and 'IDs' in f.keys():
             ordered_particle_ids = list(f['IDs']['ID'][...])
 
             f1 = h5py.File(snapPath(basePath, snapNum), 'r')
