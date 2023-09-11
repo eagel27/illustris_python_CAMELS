@@ -17,7 +17,7 @@ See the [CAMELS docs](https://camels.readthedocs.io/en/latest/) for details.
 
 ```
 git clone git@github.com:eagel27/illustris_python_CAMELS.git
-cd illustris_python
+cd illustris_python_CAMELS
 pip install .
 ```
 # Prerequisites
